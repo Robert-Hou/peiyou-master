@@ -14,12 +14,15 @@
 // @ is an alias to /src
 import NavBar from "./components/NavBar";
 import UserInfo from "./components/UserInfo";
-var hasUserPage = ["Home", "CourseCenter"];
+var hasUserPage = ["Home", "CourseShop"];
 export default {
     name: "LayoutHome",
     components: {
         NavBar,
         UserInfo,
+    },
+    created() {
+        console.log("LayoutHome created");
     },
     computed: {
         hasUserInfo() {

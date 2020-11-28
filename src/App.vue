@@ -4,6 +4,19 @@
     </div>
 </template>
 
+<script>
+export default {
+    name: "App",
+    data() {
+        return {
+            coinTask: false,
+        };
+    },
+    methods: {
+        showCoinTask() {},
+    },
+};
+</script>
 <style>
 * {
     margin: 0;

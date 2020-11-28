@@ -10,15 +10,13 @@
                     />
                 </div>
                 <div v-show="showUserBtn" class="infopop">
-                    <a href="#"
-                        ><img
-                            src="../../../../public/images/perinfoico.png"
-                        /><span>个人信息</span></a
+                    <a href="#">
+                        <img src="../../../../public/images/perinfoico.png" />
+                        <span>个人信息</span></a
                     >
-                    <a href="#"
-                        ><img
-                            src="../../../../public/images/quitico.png"
-                        /><span>退出登录</span></a
+                    <a href="#">
+                        <img src="../../../../public/images/quitico.png" />
+                        <span>退出登录</span></a
                     >
                 </div>
             </div>
@@ -32,9 +30,8 @@
                     <!-- <span class="date">有效期至：3000-01-01<i>（试用账号可体验试学课程第1课时）</i></span> -->
                 </div>
                 <div class="userschool">
-                    太棒了！你完成了全部任务，共领取1000金币！<a href="#"
-                        >查看详情</a
-                    >
+                    太棒了！你完成了全部任务，共领取1000金币！
+                    <a href="#" @click="eventShowCoinsTask">查看详情</a>
                 </div>
             </div>
         </div>
@@ -60,12 +57,18 @@
             </div>
         </div>
         <div style="clear: both"></div>
+
+        <coin-task v-if="showCoinTask" :show.sync="showCoinTask"></coin-task>
     </div>
 </template>
 
 <script>
+import CoinTask from "../../../components/MsgBox/CoinTask";
 export default {
     name: "UserInfo",
+    components: {
+        CoinTask,
+    },
     data() {
         return {
             photo: "",
@@ -76,6 +79,8 @@ export default {
             todayStudyTime: 0,
             studyDayNumber: 0,
             coinNum: 10,
+
+            showCoinTask: false,
         };
     },
     mounted() {
@@ -92,6 +97,9 @@ export default {
         },
         eventCloseUserBtn() {
             this.showUserBtn = false;
+        },
+        eventShowCoinsTask() {
+            this.showCoinTask = true;
         },
     },
 };

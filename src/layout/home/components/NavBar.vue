@@ -1,23 +1,25 @@
 <template>
     <div class="nav-box">
         <div class="content">
-            <router-link to="/2" :class="{ active: isHomeWork }"
+            <router-link to="/HomeWork" :class="{ active: isHomeWork }"
                 >课后作业</router-link
             >
             <router-link to="/">课后练习</router-link>
-            <router-link to="/" :class="{ active: isErrorBook }"
+            <router-link to="/ErrorBook" :class="{ active: isErrorBook }"
                 >错题本</router-link
             >
             <router-link to="/" :class="{ active: isHomeWork }" class="logoimg">
                 <img src="../../../../public/images/logo.png" />
             </router-link>
-            <router-link to="/" :class="{ active: isReportCenter }"
+            <router-link to="/ReportCenter" :class="{ active: isReportCenter }"
                 >报告中心</router-link
             >
-            <router-link to="/" :class="{ active: isFinishedCourses }"
+            <router-link
+                to="/FinishedCourses"
+                :class="{ active: isFinishedCourses }"
                 >已学课程</router-link
             >
-            <router-link to="/" :class="{ active: isCourseShop }"
+            <router-link to="/CourseShop" :class="{ active: isCourseShop }"
                 >选课中心</router-link
             >
         </div>

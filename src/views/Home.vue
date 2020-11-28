@@ -2,5 +2,10 @@
     <div>123</div>
 </template>
 <script>
-export default {};
+export default {
+    name: "Home",
+    created() {
+        console.log("Home created");
+    },
+};
 </script>
