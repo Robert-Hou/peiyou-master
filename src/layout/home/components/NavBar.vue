@@ -4,7 +4,7 @@
             <router-link to="/HomeWork" :class="{ active: isHomeWork }"
                 >课后作业</router-link
             >
-            <router-link to="/">课后练习</router-link>
+            <a @click="openPractice">课后练习</a>
             <router-link to="/ErrorBook" :class="{ active: isErrorBook }"
                 >错题本</router-link
             >
@@ -23,11 +23,19 @@
                 >选课中心</router-link
             >
         </div>
+        <practice v-show="practiceClose" :close.sync="practiceClose"></practice>
     </div>
 </template>
 <script>
+import Practice from "../../../components/MsgBox/Practice.vue";
 export default {
+    components: { Practice },
     name: "NavBar",
+    data() {
+        return {
+            practiceClose: false,
+        };
+    },
     computed: {
         isHomeWork() {
             return this.$route.name == "HomeWork";
@@ -43,6 +51,11 @@ export default {
         },
         isCourseShop() {
             return this.$route.name == "CourseShop";
+        },
+    },
+    methods: {
+        openPractice() {
+            this.practiceClose = true;
         },
     },
 };
