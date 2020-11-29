@@ -4,7 +4,7 @@
             <router-link to="/HomeWork" :class="{ active: isHomeWork }"
                 >课后作业</router-link
             >
-            <a @click="openPractice">课后练习</a>
+            <a href="#" @click="openPractice">课后练习</a>
             <router-link to="/ErrorBook" :class="{ active: isErrorBook }"
                 >错题本</router-link
             >
