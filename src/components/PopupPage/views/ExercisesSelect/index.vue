@@ -2,8 +2,8 @@
     <div class="select-box" :class="{ active: canSubmit }">
         <div class="close-btn" @click="close"></div>
         <div class="select">
-            <span class="icon class-select"></span>
-            <label>课程选择:</label>
+            <div class="icon class-select"></div>
+            <label class="label">课程选择:</label>
             <!-- <select-box
                 placeholder="请选择课程"
                 :list="courseList"
@@ -16,14 +16,15 @@
             ></select-input>
         </div>
         <div class="select">
-            <span class="icon count-select"></span>
-            <label>题目数量:</label>
+            <div class="icon count-select"></div>
+            <label class="label">题目数量:</label>
             <select-input
                 placeholder="请选择题目数量"
                 :list="countList"
                 v-model="count"
             ></select-input>
         </div>
+        <p>本次练习可得100金币（每天限3次，今日已练3次）</p>
     </div>
 </template>
 <script>
@@ -74,8 +75,9 @@ export default {
     width: 642px;
     height: 565px;
     background: url(../../../../../public/images/content_9Bg.png) no-repeat;
-    padding-top: 160px;
+    padding-top: 185px;
     padding-left: 50px;
+    padding-right: 90px;
     box-sizing: border-box;
     .close-btn {
         position: absolute;
@@ -89,8 +91,40 @@ export default {
     .select {
         width: 410px;
         height: 92px;
+        line-height: 92px;
         border-bottom: 1px solid #ffe9ba;
-        padding: 20px 50px 0;
+        padding: 0 40px;
+        text-align: left;
+        .icon {
+            width: 54px;
+            height: 48px;
+            line-height: 48px;
+            background-size: contain;
+            display: inline-block;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-right: 16px;
+        }
+        .icon::before {
+            content: "";
+            display: inline-block;
+        }
+
+        .class-select {
+            background-image: url(../../../../../public/images/books1.png);
+        }
+        .count-select {
+            background-image: url(../../../../../public/images/books2.png);
+        }
+        .label {
+            color: #ff8a03;
+            font-size: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+    }
+    p {
+        margin-top: 30px;
     }
 }
 .select-box.active {
