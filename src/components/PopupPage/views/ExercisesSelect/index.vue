@@ -47,7 +47,7 @@ export default {
                 { value: 20, text: "20" },
             ],
             courseId: null,
-            count: 5,
+            count: null,
         };
     }, //组件数据
     props: {}, //组件参数

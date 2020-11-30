@@ -45,26 +45,34 @@ export default {
             let item = this.list.filter((s) => {
                 return s.value == this.data;
             });
-            console.log("list", this.list);
-            console.log("data", this.data);
             return item.length > 0 ? item[0].text : this.placeholder;
         },
     }, //计算属性
     methods: {
+        //切换开关状态
         target() {
             this.open = !this.open;
         },
+        //关闭下拉
         close() {
             this.open = false;
         },
+        //文档点击事件
         documentClick(event) {
-            console.log("event.target", event.target);
-            console.log("this.$el", this.$el);
-            console.log("event.target == this.$el", event.target == this.$el);
+            let clickThis =
+                event.path.filter((s) => {
+                    return s === this.$el;
+                }).length > 0; //判断是否点击到了这个选框中
+            if (!clickThis) {
+                //如果没选中,关闭
+                this.close();
+            }
         },
+        //选择事件
         selected(item) {
             let value = item ? item.value : null;
             this.$emit("selfEvent", value);
+            this.close();
         },
     }, //方法
     watch: {}, //监听属性
