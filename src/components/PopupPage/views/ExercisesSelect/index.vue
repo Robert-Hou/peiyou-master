@@ -4,27 +4,36 @@
         <div class="select">
             <span class="icon class-select"></span>
             <label>课程选择:</label>
-            <select-box
+            <!-- <select-box
                 placeholder="请选择课程"
                 :list="courseList"
                 @changed="changeCourse"
-            ></select-box>
+            ></select-box> -->
+            <select-input
+                placeholder="请选择课程"
+                :list="courseList"
+                v-model="courseId"
+            ></select-input>
         </div>
         <div class="select">
             <span class="icon count-select"></span>
-            <label>课程选择:</label>
-            <select-box
-                placeholder="请选择课程"
+            <label>题目数量:</label>
+            <select-input
+                placeholder="请选择题目数量"
                 :list="countList"
-                @changed="changeCount"
-            ></select-box>
+                v-model="count"
+            ></select-input>
         </div>
     </div>
 </template>
 <script>
-import SelectBox from "./components/SelectBox";
+//import SelectBox from "./components/SelectBox";
+import SelectInput from "./components/SelectInput";
 export default {
-    components: { SelectBox },
+    components: {
+        // SelectBox,
+        SelectInput,
+    },
     name: "ExercisesSelect", //组件名称
     data() {
         return {
@@ -38,7 +47,7 @@ export default {
                 { value: 20, text: "20" },
             ],
             courseId: null,
-            count: null,
+            count: 5,
         };
     }, //组件数据
     props: {}, //组件参数
@@ -51,14 +60,10 @@ export default {
         close() {
             this.$emit("close-page");
         },
-        changeCourse(val) {
-            console.log("changeCourse", val);
-            this.courseId = val;
-        },
-        changeCount(val) {
-            console.log("changeCount", val);
-            this.count = val;
-        },
+        // changeCourse(val) {
+        //     console.log("changeCourse", val);
+        //     this.courseId = val;
+        // },
     }, //方法
     watch: {}, //监听属性
 };

@@ -1,81 +1,79 @@
 <template>
-    <div
-        class="select-input-box"
-        :class="{ active: showList }"
-        :data-value="value"
-    >
-        <div v-text="selectedText" class="input" @click.stop="target"></div>
+    <div class="select-input-box" :class="{ active: open }">
+        <div v-text="selectedText" class="input" @click="target"></div>
         <ul class="list">
-            <li v-text="placeholder" @click.stop="selected()"></li>
+            <li v-text="placeholder" @click="selected()"></li>
             <li
                 v-for="item in list"
                 :key="item.value"
                 v-text="item.text"
-                @click.stop="selected(item)"
+                @click="selected(item)"
             ></li>
         </ul>
     </div>
 </template>
 <script>
 export default {
-    name: "SelectBox", //组件名称
+    name: "SelectInput", //组件名称
     data() {
         return {
-            value: null,
-            text: null,
-            showList: false,
+            open: false,
         };
     }, //组件数据
     props: {
-        placeholder: { type: String, default: "请选择" }, //提示文字
-        list: Array, //列表值 {value:"",text:""}
-        defaultValue: {
+        list: Array,
+        placeholder: String,
+        data: {
             validator: (val) => {
-                //console.log("value", typeof val);
+                console.log("data type", typeof val);
                 return (
-                    typeof val == "string" ||
-                    typeof val == "number" ||
-                    typeof val == "undefined"
+                    typeof val === "string" ||
+                    typeof val === "number" ||
+                    typeof val === "undefined" ||
+                    val == null
                 );
-            }, //自定义验证
-            default: "",
-        }, //默认值
+            },
+            default: null,
+        }, //接收v-model的值的地方
     }, //组件参数
-    created() {
-        let defaultItem = this.list.filter((s) => s.value == this.defaultValue);
-        if (defaultItem.length > 0) {
-            let item = defaultItem[0];
-            this.value = item.value;
-            this.text = item.text;
-        }
-    },
+    model: {
+        prop: "data", //接收的props名称 与props对象中同名即可
+        event: "selfEvent", //自定义事件名称
+    }, //修改v-model指令
     computed: {
         selectedText() {
-            //console.log("text", this.text);
-            return this.text || this.placeholder;
+            let item = this.list.filter((s) => {
+                return s.value == this.data;
+            });
+            console.log("list", this.list);
+            console.log("data", this.data);
+            return item.length > 0 ? item[0].text : this.placeholder;
         },
     }, //计算属性
     methods: {
         target() {
-            this.showList = !this.showList;
+            this.open = !this.open;
         },
         close() {
-            this.showList = false;
+            this.open = false;
+        },
+        documentClick(event) {
+            console.log("event.target", event.target);
+            console.log("this.$el", this.$el);
+            console.log("event.target == this.$el", event.target == this.$el);
         },
         selected(item) {
-            //console.log("item", item);
-            if (item) {
-                this.text = item.text;
-                this.value = item.value;
-            } else {
-                this.text = null;
-                this.value = null;
-            }
-            this.close();
-            this.$emit("changed", this.value);
+            let value = item ? item.value : null;
+            this.$emit("selfEvent", value);
         },
     }, //方法
     watch: {}, //监听属性
+    mounted() {
+        document.addEventListener("click", this.documentClick);
+    }, //加载完成-生命周期
+    destroyed() {
+        document.removeEventListener("click", this.documentClick);
+    }, //注销组件-生命周期
 };
 </script>
 <style lang="less" scoped>
