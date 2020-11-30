@@ -1,5 +1,5 @@
 <template>
-    <div>123</div>
+    <div style="height: 10000px">123</div>
 </template>
 <script>
 export default {

@@ -1,54 +1,51 @@
 <template>
-    <msg-box>
-        <div class="coin-task">
-            <div class="head">
-                <div class="close-btn" ref="closeBtn" @click="closeMsg"></div>
-            </div>
-            <div class="content">
-                <div
-                    class="task-item"
-                    v-for="item in taskObjList"
-                    :key="item.index"
-                >
-                    <div class="task-item-img" :class="[item.classObj]"></div>
-                    <div class="task-item-info">
-                        <p>
-                            <label v-text="item.name"></label>
-                            <span v-text="item.text" class="text"></span>
-                            <span class="time" v-if="!item.received"
-                                >（任务剩余<i v-text="item.time"></i>）</span
-                            >
-                        </p>
-                        <p>
-                            任务奖励:<span
-                                class="coins"
-                                v-text="item.coins + ' 金币'"
-                            ></span>
-                        </p>
-                    </div>
-                    <div class="task-item-btn">
-                        <div class="finished" v-if="item.received">已完成</div>
-                        <div class="btnbox" v-else>
-                            <div
-                                class="btn"
-                                v-if="item.progress === item.allProgress"
-                            >
-                                领取金币
-                            </div>
-                            <div class="btn" v-else>去完成</div>
-                            <p>
-                                进度 <span v-text="item.progress"></span> /
-                                <span v-text="item.allProgress"></span>
-                            </p>
+    <div class="coin-task">
+        <div class="head">
+            <div class="close-btn" ref="closeBtn" @click="closeMsg"></div>
+        </div>
+        <div class="content">
+            <div
+                class="task-item"
+                v-for="item in taskObjList"
+                :key="item.index"
+            >
+                <div class="task-item-img" :class="[item.classObj]"></div>
+                <div class="task-item-info">
+                    <p>
+                        <label v-text="item.name"></label>
+                        <span v-text="item.text" class="text"></span>
+                        <span class="time" v-if="!item.received"
+                            >（任务剩余<i v-text="item.time"></i>）</span
+                        >
+                    </p>
+                    <p>
+                        任务奖励:<span
+                            class="coins"
+                            v-text="item.coins + ' 金币'"
+                        ></span>
+                    </p>
+                </div>
+                <div class="task-item-btn">
+                    <div class="finished" v-if="item.received">已完成</div>
+                    <div class="btnbox" v-else>
+                        <div
+                            class="btn"
+                            v-if="item.progress === item.allProgress"
+                        >
+                            领取金币
                         </div>
+                        <div class="btn" v-else>去完成</div>
+                        <p>
+                            进度 <span v-text="item.progress"></span> /
+                            <span v-text="item.allProgress"></span>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-    </msg-box>
+    </div>
 </template>
 <script>
-import MsgBox from "./MsgBox";
 let typeDic = {
     study: "学习任务",
     work: "作业任务",
@@ -57,12 +54,6 @@ let typeDic = {
 };
 export default {
     name: "CoinTask",
-    props: {
-        show: Boolean,
-    },
-    components: {
-        MsgBox,
-    },
     data() {
         return {
             taskList: [
@@ -117,7 +108,8 @@ export default {
     },
     methods: {
         closeMsg() {
-            this.$emit("update:show", false);
+            console.log("点击了x");
+            this.$emit("close-page");
         },
     },
 };
@@ -134,9 +126,9 @@ export default {
         height: 70px;
         line-height: 70px;
         text-align: center;
-        background: url(../../../public/images/pop.png) no-repeat center top;
+        background: url(../../../../public/images/pop.png) no-repeat center top;
         .close-btn {
-            background: url(../../../public/images/cl.png) no-repeat;
+            background: url(../../../../public/images/cl.png) no-repeat;
             width: 16px;
             height: 16px;
             margin: 27px;
@@ -165,16 +157,16 @@ export default {
                 background-position: left center;
             }
             .task-item-img.study-task {
-                background-image: url(../../../public/images/studywork.png);
+                background-image: url(../../../../public/images/studywork.png);
             }
             .task-item-img.work-task {
-                background-image: url(../../../public/images/workwork.png);
+                background-image: url(../../../../public/images/workwork.png);
             }
             .task-item-img.practice-task {
-                background-image: url(../../../public/images/practicetasks.png);
+                background-image: url(../../../../public/images/practicetasks.png);
             }
             .task-item-img.error-task {
-                background-image: url(../../../public/images/errorwork.png);
+                background-image: url(../../../../public/images/errorwork.png);
             }
             .task-item-info {
                 float: left;
@@ -214,7 +206,7 @@ export default {
             .task-item-btn {
                 float: right;
                 .finished {
-                    background: url(../../../public/images/qd.png) no-repeat
+                    background: url(../../../../public/images/qd.png) no-repeat
                         10px center;
                     margin-top: 10px;
                     padding-left: 58px;
@@ -228,7 +220,7 @@ export default {
                 .btnbox {
                     font-size: 16px;
                     .btn {
-                        background: url(../../../public/images/btnbj.png)
+                        background: url(../../../../public/images/btnbj.png)
                             no-repeat center center;
                         width: 124px;
                         height: 36px;

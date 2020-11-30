@@ -23,13 +23,10 @@
                 >选课中心</router-link
             >
         </div>
-        <practice v-show="practiceClose" :close.sync="practiceClose"></practice>
     </div>
 </template>
 <script>
-import Practice from "../../../components/MsgBox/Practice.vue";
 export default {
-    components: { Practice },
     name: "NavBar",
     data() {
         return {
@@ -55,7 +52,7 @@ export default {
     },
     methods: {
         openPractice() {
-            this.practiceClose = true;
+            this.$store.commit("openPopupPage", 2);
         },
     },
 };

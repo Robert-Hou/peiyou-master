@@ -7,11 +7,19 @@
 <script>
 export default {
     name: "App",
+    created() {
+        console.log("state.msgBoxType", this.$store.state.messageBoxType);
+    },
     data() {
         return {
             coinTask: false,
         };
     },
+    // components: {
+    //     // ...mapState({
+    //     //     msgBoxType: (s) => s.messageBoxType,
+    //     // }),
+    // },
     methods: {
         showCoinTask() {},
     },

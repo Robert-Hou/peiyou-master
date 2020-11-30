@@ -57,18 +57,12 @@
             </div>
         </div>
         <div style="clear: both"></div>
-
-        <coin-task v-if="showCoinTask" :show.sync="showCoinTask"></coin-task>
     </div>
 </template>
 
 <script>
-import CoinTask from "../../../components/MsgBox/CoinTask";
 export default {
     name: "UserInfo",
-    components: {
-        CoinTask,
-    },
     data() {
         return {
             photo: "",
@@ -99,7 +93,7 @@ export default {
             this.showUserBtn = false;
         },
         eventShowCoinsTask() {
-            this.showCoinTask = true;
+            this.$store.commit("openPopupPage", 1);
         },
     },
 };
