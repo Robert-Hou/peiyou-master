@@ -67,9 +67,10 @@
             <ul class="lesson-list">
                 <li
                     class="lesson-info"
-                    :class="{ active: lesson.isLastStudy }"
+                    :class="[lesson.isOpen]"
                     v-for="lesson in lessons"
                     :key="lesson.index"
+                    @click="showItem(lesson)"
                 >
                     <div class="info">
                         <span
@@ -99,8 +100,8 @@
                             class="study-btn"
                             :class="{ disabled: !lesson.canStudy }"
                             to=""
-                            >开始学习</router-link
-                        >
+                            v-text="lesson.isFinished ? '再次学习' : '开始学习'"
+                        ></router-link>
                     </div>
                 </li>
             </ul>
@@ -116,12 +117,10 @@ export default {
         InfoPage,
         SubjectTip,
     },
-    data() {
-        return {
-            name: "三年级英语基础",
+    created() {
+        let data = {
+            name: "",
             imgLink: "",
-            lessonCount: 10,
-            finishedCount: 5,
             subjectFlag: 8,
             teachers: ["张老师", "李老师", "王老师", "赵老师"],
             className: "测试班级",
@@ -138,84 +137,115 @@ export default {
                 "周一 12:00~13:00",
                 "周一 12:00~13:00",
             ],
-            lastStudyLessonIndex: 1,
             lessons: [
                 {
                     id: 10001,
                     name: "课时名称",
                     index: 1,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10002,
                     name: "课时名称",
                     index: 2,
                     studyTime: "2020-12-4 17:35",
+                    isFinished: true,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10003,
                     name: "课时名称",
                     index: 3,
                     studyTime: "2020-12-4 17:38",
+                    isFinished: true,
                     isLastStudy: true,
                     canStudy: true,
+                    isOpen: "down",
                 },
                 {
                     id: 10004,
                     name: "课时名称",
                     index: 4,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10005,
                     name: "课时名称",
                     index: 5,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10006,
                     name: "课时名称",
                     index: 6,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10007,
                     name: "课时名称",
                     index: 7,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10008,
                     name: "课时名称",
                     index: 8,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: false,
                     canStudy: true,
+                    isOpen: "",
                 },
                 {
                     id: 10009,
                     name: "课时名称",
                     index: 9,
                     studyTime: "",
+                    isFinished: false,
                     isLastStudy: true,
                     canStudy: false,
+                    isOpen: "",
                 },
             ],
             describe:
                 "这是一段描述信息这是一段描述信息这是一段描述信息这是一段描述信息这是一息",
             price: 199.99,
+        };
+        Object.assign(this.$data, data);
+    },
+    data() {
+        return {
+            name: "",
+            imgLink: "",
+            subjectFlag: 8,
+            teachers: [],
+            className: "",
+            classTime: [],
+            lessons: [],
+            describe: "",
+            price: 0,
         };
     }, //组件数据
     props: {
@@ -232,8 +262,24 @@ export default {
                 return { path: "/" };
             }
         },
+        lessonCount() {
+            return this.lessons.length;
+        },
+        finishedCount() {
+            return this.lessons.filter((s) => s.isFinished).length;
+        },
     }, //计算属性
-    methods: {}, //方法
+    methods: {
+        showItem(item) {
+            this.lessons.forEach((s) => {
+                if (s != item && s.isOpen) {
+                    s.isOpen = "up";
+                }
+            });
+            item.isOpen =
+                item.isOpen == "" || item.isOpen == "up" ? "down" : "up";
+        },
+    }, //方法
     watch: {}, //监听属性
 };
 </script>
@@ -424,11 +470,14 @@ export default {
                 }
             }
             .btns {
-                padding-bottom: 18px;
-                padding-top: 15px;
+                height: 65px;
+                line-height: 65px;
                 text-align: right;
-                padding-right: 24px;
                 display: none;
+                overflow: hidden;
+                width: 100%;
+                box-sizing: border-box;
+                padding-right: 24px;
                 .link-btn {
                     display: inline-block;
                     font-size: 16px;
@@ -462,11 +511,69 @@ export default {
         .lesson-info:nth-child(odd) {
             background-color: #fff5e4;
         }
-        .lesson-info.active {
+        .lesson-info.down {
+            .info {
+                i {
+                    animation: rotateDown 0.5s;
+                    transform: rotate(90deg);
+                }
+            }
             .btns {
                 display: block;
+                animation: sllowDown 0.5s;
+                height: 65px;
             }
         }
+        .lesson-info.up {
+            .info {
+                i {
+                    animation: rotateUp 0.5s;
+                    transform: rotate(0deg);
+                }
+            }
+            .btns {
+                display: block;
+                animation: sllowUp 0.5s;
+                height: 0px;
+            }
+        }
+    }
+}
+@keyframes sllowDown {
+    from {
+        display: none;
+        height: 0px;
+    }
+    to {
+        display: block;
+        height: 65px;
+    }
+}
+@keyframes sllowUp {
+    from {
+        display: block;
+        height: 65px;
+    }
+    to {
+        display: none;
+        height: 0px;
+    }
+}
+@keyframes rotateDown {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(90deg);
+    }
+}
+
+@keyframes rotateUp {
+    from {
+        transform: rotate(90deg);
+    }
+    to {
+        transform: rotate(0deg);
     }
 }
 </style>
