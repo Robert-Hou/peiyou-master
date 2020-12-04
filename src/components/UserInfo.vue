@@ -4,18 +4,15 @@
             <div class="contleft">
                 <div class="photo" @click="eventShowUserBtn">
                     <img v-if="photo" :src="photo" />
-                    <img
-                        v-else
-                        src="../../../../public/images/student_photo.png"
-                    />
+                    <img v-else src="../../public/images/student_photo.png" />
                 </div>
                 <div v-show="showUserBtn" class="infopop">
                     <a href="#">
-                        <img src="../../../../public/images/perinfoico.png" />
+                        <img src="../../public/images/perinfoico.png" />
                         <span>个人信息</span></a
                     >
                     <a href="#">
-                        <img src="../../../../public/images/quitico.png" />
+                        <img src="../../public/images/quitico.png" />
                         <span>退出登录</span></a
                     >
                 </div>
@@ -24,7 +21,7 @@
                 <div class="username">
                     <span class="nsp" v-text="name"></span>
                     <span class="newsp">
-                        <img src="../../../../public/images/mesgico.png" />
+                        <img src="../../public/images/mesgico.png" />
                         <em v-text="newMsgNum"></em>
                     </span>
                     <!-- <span class="date">有效期至：3000-01-01<i>（试用账号可体验试学课程第1课时）</i></span> -->
@@ -51,7 +48,7 @@
                 <div class="label">
                     金币数量
                     <em title="这是什么?">
-                        <img src="../../../../public/images/infoico.png" />
+                        <img src="../../public/images/infoico.png" />
                     </em>
                 </div>
             </div>
@@ -202,8 +199,8 @@ export default {
                 font-size: 16px;
                 color: #222;
                 line-height: 22px;
-                background: url(../../../../public/images/infoico1.png)
-                    no-repeat left center;
+                background: url(../../public/images/infoico1.png) no-repeat left
+                    center;
                 margin-top: 10px;
                 a {
                     display: inline-block;
@@ -212,8 +209,8 @@ export default {
                     line-height: 22px;
                     margin-top: -4px;
                     padding-right: 23px;
-                    background: url(../../../../public/images/infoicon2.png)
-                        no-repeat right center;
+                    background: url(../../public/images/infoicon2.png) no-repeat
+                        right center;
                 }
             }
         }

@@ -1,24 +1,25 @@
 <template>
     <div class="nav-box">
         <div class="content">
-            <router-link to="/HomeWork" :class="{ active: isHomeWork }"
-                >课后作业</router-link
-            >
+            <router-link to="/HomeWork" :class="{ active: isHomeWork }">
+                课后作业
+            </router-link>
             <a href="#" @click="openPractice">课后练习</a>
-            <router-link to="/ErrorBook" :class="{ active: isErrorBook }"
-                >错题本</router-link
-            >
+            <router-link to="/ErrorBook" :class="{ active: isErrorBook }">
+                错题本
+            </router-link>
             <router-link to="/" :class="{ active: isHomeWork }" class="logoimg">
                 <img src="../../../../public/images/logo.png" />
             </router-link>
-            <router-link to="/ReportCenter" :class="{ active: isReportCenter }"
-                >报告中心</router-link
-            >
+            <router-link to="/ReportCenter" :class="{ active: isReportCenter }">
+                报告中心
+            </router-link>
             <router-link
                 to="/FinishedCourses"
                 :class="{ active: isFinishedCourses }"
-                >已学课程</router-link
             >
+                已学课程
+            </router-link>
             <router-link to="/CourseShop" :class="{ active: isCourseShop }"
                 >选课中心</router-link
             >

@@ -2,10 +2,7 @@
     <div class="home">
         <nav-bar></nav-bar>
         <div class="content">
-            <div class="inner-box">
-                <user-info v-if="hasUserInfo"></user-info>
-                <router-view />
-            </div>
+            <router-view class="inner-box" />
         </div>
 
         <popup-page v-if="PopupPageType"></popup-page>
@@ -15,25 +12,21 @@
 <script>
 // @ is an alias to /src
 import NavBar from "./components/NavBar";
-import UserInfo from "./components/UserInfo";
+//import UserInfo from "./components/UserInfo";
 
 import PopupPage from "./../../components/PopupPage";
 import { mapState } from "vuex";
-var hasUserPage = ["Home", "CourseShop"];
 export default {
     name: "LayoutHome",
     components: {
         NavBar,
-        UserInfo,
+        //UserInfo,
         PopupPage,
     },
     created() {
         console.log("LayoutHome created");
     },
     computed: {
-        hasUserInfo() {
-            return hasUserPage.indexOf(this.$route.name) > -1;
-        },
         ...mapState({
             PopupPageType: (s) => s.PopupPageType,
         }),
