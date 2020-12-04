@@ -30,6 +30,7 @@ export default {
         return {
             courseList: [
                 {
+                    id: 10000,
                     name: "三年级英语基础",
                     imgLink: "",
                     lessonCount: 10,
@@ -55,6 +56,7 @@ export default {
                     lastStudyLessonName: "测试课时",
                 },
                 {
+                    id: 10001,
                     name: "三年级数学运算",
                     imgLink: "",
                     lessonCount: 10,

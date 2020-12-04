@@ -38,10 +38,10 @@ a {
     text-decoration: none;
 }
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: "Microsoft Yahei", "宋体", Arail, Tabhoma;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: #2c3e50;
+    color: #000000;
     height: 100vh;
 }
 </style>

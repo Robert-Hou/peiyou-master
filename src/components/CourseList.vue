@@ -1,6 +1,6 @@
 <template>
     <div class="data-list">
-        <div class="course-info" v-for="course in courseList" :key="course.id">
+        <div class="course-info" v-for="course in courses" :key="course.id">
             <img
                 :src="course.imgLink"
                 class="image-box"
@@ -9,10 +9,9 @@
             <img src="../../public/images/prod.png" class="image-box" v-else />
             <div class="course-data">
                 <p class="course-basic">
-                    <span
-                        class="subject-flag"
-                        :class="course.subjectClass"
-                    ></span>
+                    <subject-tip
+                        :subject-flag="course.subjectFlag"
+                    ></subject-tip>
                     <span class="course-name" v-text="course.name"></span>
                     <span
                         class="lesson-count"
@@ -66,14 +65,20 @@
                             "
                         ></span>
                     </div>
-                    <router-link to="" class="study-btn">开始学习</router-link>
+                    <router-link
+                        :to="{ name: 'Course', params: { id: course.id } }"
+                        class="study-btn"
+                        >开始学习</router-link
+                    >
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
+import SubjectTip from "./SubjectTip.vue";
 export default {
+    components: { SubjectTip },
     name: "CourseList", //组件名称
     data() {
         return {};
@@ -81,28 +86,7 @@ export default {
     props: {
         courses: Array, //课程列表
     }, //组件参数
-    computed: {
-        courseList() {
-            return this.courses.map((s) => {
-                let subClass = "";
-                switch (s.subjectFlag) {
-                    case 1:
-                        subClass = "math";
-                        break;
-                    case 8:
-                        subClass = "english";
-                        break;
-                }
-                let obj = Object.assign(
-                    {
-                        subjectClass: subClass,
-                    },
-                    s
-                );
-                return obj;
-            });
-        },
-    }, //计算属性
+    computed: {}, //计算属性
     methods: {}, //方法
     watch: {}, //监听属性
 };
@@ -129,28 +113,6 @@ export default {
             .course-basic {
                 color: #222;
                 font-size: 18px;
-                .subject-flag {
-                    display: inline-block;
-                    vertical-align: middle;
-                    color: #fff;
-                    padding: 0 7px;
-                    border-radius: 5px;
-                    line-height: 24px;
-                    margin-right: 5px;
-                    font-size: 14px;
-                }
-                .english {
-                    background-color: #1f5198;
-                }
-                .english::before {
-                    content: "英语";
-                }
-                .math {
-                    background-color: #05984d;
-                }
-                .math::before {
-                    content: "数学";
-                }
 
                 .finished-scale {
                     float: right;
@@ -175,6 +137,9 @@ export default {
                     text-overflow: ellipsis;
                     word-break: normal;
                     display: inline-block;
+                    span {
+                        display: inline-block;
+                    }
                     span::after {
                         content: "\3001";
                     }
@@ -195,6 +160,9 @@ export default {
                 .times {
                     display: block;
                     overflow: hidden;
+                    span {
+                        display: inline-block;
+                    }
                     span:after {
                         content: "\3001";
                     }

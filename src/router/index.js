@@ -9,6 +9,8 @@ import ReportCenter from "../views/ReportCenter.vue"
 import FinishedCourses from "../views/FinishedCourses.vue"
 import CourseShop from "../views/CourseShop.vue"
 
+import Course from "../views/Course.vue"
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -48,7 +50,11 @@ const routes = [
       },
     ]
   },
-
+  {
+    path: "/course/:id",
+    name: "Course",
+    component: Course
+  },
   { path: '*', redirect: '/', hidden: true }
 ]
 
