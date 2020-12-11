@@ -1,7 +1,7 @@
 <template>
     <div class="video-box">
-        <video ref="video" class="video" :src="src"></video>
-        <div class="video-controls">
+        <video ref="video" class="video" :src="src" @click="target"></video>
+        <div class="video-controls" v-show="private_showControls">
             <div
                 class="video-control-btn play-btn"
                 :class="{ pause: !paused }"
@@ -11,10 +11,12 @@
                 ref="progress-box"
                 class="progress-box"
                 @mousedown="progressDown"
+                @mousemove="progressMove"
+                @mouseout="progressOut"
             >
-                <div class="progress-line">
+                <div ref="progress-line" class="progress-line">
                     <div
-                        ref="progress"
+                        ref="progress-now"
                         class="progress-now"
                         :time="currentTime"
                     ></div>
@@ -22,15 +24,39 @@
                 <div
                     ref="progress-tip"
                     class="time-tip"
-                    :class="{ hide: private_progress_time_hide }"
+                    v-show="private_showProgressTip"
                 >
                     <div class="time-tip-text" v-text="selectTimer"></div>
                 </div>
+                <div
+                    class="progress-marker"
+                    v-for="marker in markers"
+                    :key="marker.index"
+                    :style="{ left: `${(marker.second / duration) * 100}%` }"
+                    :class="marker.classObj"
+                    @click="markerClick(marker)"
+                >
+                    <span
+                        v-html="
+                            changeTime(marker.second) + '<br/>' + marker.title
+                        "
+                    ></span>
+                </div>
             </div>
-            <div class="video-control-btn volume-btn">
-                <div class="volume-box">
-                    <div class="volume-line">
-                        <div ref="volume" class="volume-now"></div>
+            <div
+                class="video-control-btn volume-btn"
+                @click="volumeBtnDown"
+                @mousedown.stop=""
+            >
+                <div
+                    class="volume-box"
+                    ref="volume-box"
+                    v-show="private_showVolumeLine"
+                    @mousedown.stop="volumeLineDown"
+                    @click.stop=""
+                >
+                    <div ref="volume-line" class="volume-line">
+                        <div ref="volume-now" class="volume-now"></div>
                     </div>
                 </div>
             </div>
@@ -40,181 +66,319 @@
 </template>
 <script>
 export default {
-    name: "", //组件名称
+    name: "VideoBox", //组件名称
     data() {
         return {
             /** 视频是否准备完成 */
             isReady: false,
-            /** 视频是否暂停 */
+            /** 是否显示控件 */
+            private_showControls: false,
+            /** 是否显示选中进度控件 */
+            private_showProgressTip: false,
+            /** 私有播放方法 */
             private_paused: true,
-            /** 视频总时长(私有,外部禁止设置) */
-            private_duration: NaN,
-            /** 当前音量(私有,外部直接调用无效,如果修改当前时间使用 volume 计算属性) */
-            private_volume: 0,
-            /** 当前时间(私有,外部直接调用无效,如果修改当前时间使用 currentTime 计算属性) */
+            /** 视频总时长 */
+            private_duration: 0,
+            /** 私有当前时间 */
             private_currentTime: 0,
-            /** 进度条上按下 */
-            private_progress_down: 0,
-            private_progress_over: true,
-            private_progress_time_hide: true,
-            /** 进度条上显示的时间 */
-            private_progress_time: 0,
+            /** 私有选择时间 */
+            private_selectTime: 0,
+            /** 私有音量 */
+            private_volume: 0,
+            /** 私有是否显示音量调节框 */
+            private_showVolumeLine: false,
+            /** 私有鼠标记录按钮 */
+            private_mouse: { x: 0, y: 0 },
+            /** 鼠标按下的标识 */
+            private_mouseDownFlag: "",
+            /** 隐藏控件定时器 */
+            private_hidnControlTimeOut: 0,
         };
     }, //组件数据
     props: {
         src: String, //视频路径
+        markers: {
+            validator(arr) {
+                if (arr instanceof Array) {
+                    for (let i = 0; i < arr.length; i++) {
+                        let itemKeys = Object.keys(arr[i]);
+                        if (
+                            !(
+                                itemKeys.indexOf("id") > -1 &&
+                                itemKeys.indexOf("second") > -1 &&
+                                itemKeys.indexOf("title") > -1
+                            )
+                        ) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            },
+            default() {
+                return [];
+            },
+        },
     }, //组件参数
     computed: {
-        //视频时长
-        duration() {
-            return this.private_duration;
-        },
-        //是否暂停
+        /** 暂停只读属性 */
         paused() {
             return this.private_paused;
         },
-        //音量
-        volume: {
-            get() {
-                return this.private_volume;
-            },
-            set(val) {
-                let video = this.$refs["video"];
-                video.volume = val;
-            },
-        },
-        //当前时间
+        /** 当前时间属性 */
         currentTime: {
             get() {
                 return this.private_currentTime;
             },
             set(val) {
-                let video = this.$refs["video"];
-                video.currentTime = val;
+                this.video.currentTime = val;
             },
         },
-        //显示时间
+        /** 当前时间字符串 */
         timer() {
-            let second = Math.floor(this.currentTime);
-            let min = Math.floor(second / 60);
-            let sec = second % 60;
-            return (
-                min.toString().padStart(2, "0") +
-                ":" +
-                sec.toString().padStart(2, "0")
-            );
+            let sec = Math.floor(this.private_currentTime % 60)
+                .toString()
+                .padStart(2, "0");
+            let min = Math.floor(this.private_currentTime / 60)
+                .toString()
+                .padStart(2, "0");
+            return `${min}:${sec}`;
         },
+        /** 进度条标签 */
+        progressBox() {
+            return this.$refs["progress-box"];
+        },
+        /** 进度条内部标签 */
+        progressNow() {
+            return this.$refs["progress-now"];
+        },
+        /** 选中时间字符串 */
         selectTimer() {
-            let second = Math.floor(this.private_progress_time);
-            let min = Math.floor(second / 60);
-            let sec = second % 60;
-            return (
-                min.toString().padStart(2, "0") +
-                ":" +
-                sec.toString().padStart(2, "0")
-            );
+            let sec = Math.floor(this.private_selectTime % 60)
+                .toString()
+                .padStart(2, "0");
+            let min = Math.floor(this.private_selectTime / 60)
+                .toString()
+                .padStart(2, "0");
+            return `${min}:${sec}`;
+        },
+        /** 当前视频标签 */
+        video() {
+            return this.$refs["video"];
+        },
+        /** 音量属性 */
+        volume: {
+            get() {
+                return this.private_volume;
+            },
+            set(val) {
+                this.video.volume = val;
+            },
+        },
+        /** 音量框标签 */
+        volumeBox() {
+            return this.$refs["volume-box"];
+        },
+        /** 音量框内容标签 */
+        volumeNow() {
+            return this.$refs["volume-now"];
+        },
+        /** 视频时长标签 */
+        duration() {
+            return this.private_duration;
         },
     }, //计算属性
     methods: {
         /** 向视频添加新的文本轨道。 */
         addTextTrack(...arg) {
-            let video = this.$refs["video"];
+            let video = this.video;
             return video.addTextTrack.apply(video, arg);
-        }, //
+        },
         /** 检查浏览器是否能够播放指定的视频类型。 */
         canPlayType() {
-            let video = this.$refs["video"];
+            let video = this.video;
             return video.canPlayType();
-        }, //
+        },
         /** 重新加载视频元素。 */
         load(...arg) {
-            let video = this.$refs["video"];
+            let video = this.video;
             return video.load.apply(video, arg);
-        }, //
-        /**
-         * 	开始播放视频。
-         */
+        },
         play() {
-            let video = this.$refs["video"];
-            console.log("play", video);
-            return video.play();
+            this.video.play();
         },
-        /**
-         * 暂停当前播放的视频。
-         */
         pause() {
-            let video = this.$refs["video"];
-            console.log("pause", video);
-            return video.pause();
+            this.video.pause();
         },
-        /**
-         * 切换暂停和播放
-         */
+        /** 转换时间方法 */
+        changeTime(second) {
+            let sec = Math.floor(second % 60)
+                .toString()
+                .padStart(2, "0");
+            let min = Math.floor(second / 60)
+                .toString()
+                .padStart(2, "0");
+            return `${min}:${sec}`;
+        },
+        /** 播放按钮切换 */
         target() {
-            if (this.paused) {
+            if (this.video.paused) {
                 this.play();
             } else {
                 this.pause();
             }
         },
-        /** 进度条按下 */
-        progressDown(e) {
-            this.private_progress_down = e.pageX;
-            this.pause();
+        /** 执行marker点事件 */
+        markerClick(marker) {
+            this.currentTime = marker.second;
         },
-        /**
-         * 进度条滑动
-         */
-        progressMove(e) {
-            console.log("move", e);
-            let x = e.offsetX;
-            this.private_progress_over = false;
-            this.private_progress_time_hide = false;
-            let proBox = this.$refs["progress-box"];
-            let width = proBox.offsetWidth;
-            let bi = x / width;
-            let tipBox = this.$refs["progress-tip"];
-            tipBox.style.left = x + "px";
-            this.private_progress_time = bi * this.duration;
-            if (this.private_progress_down) {
-                this.currentTime = this.private_progress_time;
-            }
+        /** 执行marker事件 */
+        markerPlayed(marker) {
+            this.$emit("markerPlayed", marker);
         },
-        /** 进度条点击 */
-        progressUp(e) {
-            console.log("up", e);
-            this.private_progress_down = 0;
+        //#region 窗口鼠标事件处理
+        /** 窗口鼠标按下 */
+        windowMouseDown() {
+            this.private_showVolumeLine = false;
         },
-        /** 进度条移出 */
-        progressOver() {
-            this.private_progress_over = true;
-            this.private_progress_time_hide = true;
-            console.log("out");
-        },
-
         /** 窗口鼠标移动 */
         windowMouseMove(e) {
-            let proBox = this.$refs["progress-box"];
-            if (e.path.indexOf(proBox) > -1) {
-                this.progressMove(e);
-            } else if (!this.private_progress_down) {
-                this.progressOver(e);
+            let move = {
+                x: e.pageX - this.private_mouse.x,
+                y: e.pageY - this.private_mouse.y,
+            };
+            switch (this.private_mouseDownFlag) {
+                case "volumeLine":
+                    this.volumeLineMove(e, move.x, move.y);
+                    break;
+                case "progressBox":
+                    this.progressChange(e, move.x);
+                    break;
+                default:
+                    break;
+            }
+            if (e.path.indexOf(this.$el) > -1) {
+                clearTimeout(this.private_hidnControlTimeOut);
+                this.private_showControls = true;
+                this.private_hidnControlTimeOut = setTimeout(() => {
+                    this.private_showControls = false;
+                }, 10 * 1000); //十秒后隐藏控件
             }
         },
         /** 窗口鼠标抬起 */
-        windowMouseUp(e) {
-            this.progressUp(e);
+        windowMouseUp() {
+            this.private_mouseDownFlag = "";
         },
+        //#endregion
+
+        //#region 音量控制
+        /** 音频按钮按下 */
+        volumeBtnDown() {
+            this.private_showVolumeLine = !this.private_showVolumeLine;
+            this.private_mouseDownFlag = "volumeBtn";
+        },
+        /** 音频线按下 */
+        volumeLineDown(e) {
+            this.private_mouse.x = e.pageX;
+            this.private_mouse.y = e.pageY;
+            this.private_mouseDownFlag = "volumeLine"; //设定点击的是音频框
+            let layerY = e.layerY; //获取鼠标点击在volume-box的光标位置
+
+            if (e.target === this.$refs["volume-line"]) {
+                //如果是点到了volume-line上
+                layerY += 5; //修正layerY,加入padding-top值
+            } else if (e.target === this.volumeNow) {
+                //如果是点到了volume-now上
+                layerY = //修正layerY
+                    this.volumeBox.clientHeight - //使用volume-box高度减去
+                    this.volumeNow.clientHeight - //volume-now高度再减去
+                    5 + //volume-box的padding-top再加上layerY
+                    layerY;
+            }
+
+            let height = 1 - (layerY - 5) / (this.volumeBox.clientHeight - 10); //获取高度占比
+            height = height < 0 ? 0 : height > 1 ? 1 : height; //修正高度占比
+            this.volumeNow.style.height = height * 100 + "%"; //设置volume-now高度
+            this.volumeNow.dataset.oldheight = this.volumeNow.clientHeight; //记录volume-now原始高度
+            this.video.volume = height; //设置视频音量
+        },
+        /**
+         * 音频线拖动
+         * @param {number} x 距离点击位置的x值
+         * @param {number} y 距离点击位置的y值
+         */
+        volumeLineMove(e, x, y) {
+            let height =
+                (this.volumeNow.dataset.oldheight - y) /
+                this.$refs["volume-line"].clientHeight; //音量高度为1- (原有高度 - 偏移高度)/总高度
+            height = height < 0 ? 0 : height > 1 ? 1 : height; //修正高度
+            this.volumeNow.style.height = `${height * 100}%`; //设置高度
+            this.video.volume = height; //设置音量
+        },
+
+        /** 设置音频 */
+        setVolume(val) {
+            this.video.volume = val;
+        },
+        //#endregion
+
+        //#region 进度条控制
+        /** 进度条移动事件 */
+        progressDown(e) {
+            this.private_mouse.x = e.pageX;
+            this.private_mouse.y = e.pageY;
+            this.private_mouseDownFlag = "progressBox";
+            let layerX = e.layerX;
+            if (e.target === this.$refs["progress-tip"]) {
+                layerX = this.$refs["progress-tip"].offsetLeft;
+            }
+            let left = layerX / this.progressBox.clientWidth;
+            left = left < 0 ? 0 : left > 1 ? 1 : left;
+            this.progressNow.style.width = `${left * 100}%`;
+            this.currentTime = left * this.private_duration;
+            this.progressNow.dataset.width = this.progressNow.clientWidth;
+        },
+        progressMove(e) {
+            this.private_showProgressTip = true;
+            let layerX = e.layerX;
+            let classList = e.target.className.replace(/\s+/g, " ").split(" ");
+            if (e.target === this.$refs["progress-tip"]) {
+                //如果是在tip的线上的话直接返回,不做修改
+                return;
+            } else if (classList.indexOf("progress-marker") > -1) {
+                this.private_showProgressTip = false;
+                return false;
+            }
+            let left = layerX / this.progressBox.clientWidth;
+            left = left < 0 ? 0 : left > 1 ? 1 : left;
+            this.private_selectTime = left * this.private_duration;
+            this.$refs["progress-tip"].style.left = `${left * 100}%`;
+        },
+        progressOut(e) {
+            if (e.target === this.$refs["progress-tip"]) {
+                //如果是在tip的线上的话直接返回,不做修改
+                return;
+            }
+            this.private_showProgressTip = false;
+        },
+        /** 修改进度条 */
+        progressChange(e, x) {
+            let width = parseInt(this.progressNow.dataset.width) + x;
+            let bi = width / this.progressBox.clientWidth;
+            bi = bi < 0 ? 0 : bi > 1 ? 1 : bi;
+            this.progressNow.style.width = `${bi * 100}%`;
+            this.currentTime = bi * this.duration;
+        },
+        //#endregion
     }, //方法
     /** 页面加载完成 */
     mounted() {
-        let video = this.$refs["video"];
+        let video = this.video;
         video.src = this.src;
         let _this = this;
         this.private_volume = video.volume;
-        console.log("音量", video.volume);
-        console.log("volume", this.$refs["volume"]);
-        this.$refs["volume"].style.height = this.volume * 100 + "%";
+        this.volumeNow.style.height = this.volume * 100 + "%";
         //#region 视频事件处理
 
         // loadstart：视频查找。当浏览器开始寻找指定的音频/视频时触发，也就是当加载过程开始时
@@ -222,15 +386,15 @@ export default {
             // console.log("提示视频的元数据已加载");
             // console.log(e);
             // console.log(video.duration); // NaN
+            _this.private_showControls = true;
             _this.$emit("loadstart", e);
         });
 
         // durationchange：时长变化。当指定的音频/视频的时长数据发生变化时触发，加载后，时长由 NaN 变为音频/视频的实际时长
         video.addEventListener("durationchange", function (e) {
-            // console.log("提示视频的时长已改变");
+            // console.log("提示视频的时长已改变", video.duration);// 528.981333   视频的实际时长（单位：秒）
             // console.log(e);
-            // console.log(video.duration); // 528.981333   视频的实际时长（单位：秒）
-            _this.private_duration = video.duration; //设置当前视频时间
+            _this.private_duration = video.duration;
             _this.$emit("durationchange", e);
         });
 
@@ -314,14 +478,25 @@ export default {
             // console.log(e);
             _this.$emit("playing", e);
         });
-
+        /** 上一秒 */
+        let lastSecond = 0;
         // timeupdate：目前的播放位置已更改时，播放时间更新
         video.addEventListener("timeupdate", function (e) {
             // console.log("timeupdate");
             // console.log(e);
             _this.private_currentTime = video.currentTime;
-            let bili = (video.currentTime / video.duration) * 100;
-            _this.$refs["progress"].style.width = bili + "%";
+            _this.progressNow.style.width = `${
+                (video.currentTime / video.duration) * 100
+            }%`;
+            let sec = Math.floor(video.currentTime); //当前秒
+            if (sec != lastSecond) {
+                lastSecond = sec; //设定当前秒
+                //如果当前秒不等于上一秒
+                let _markers = _this.markers.filter((s) => s.second == sec);
+                _markers.forEach((s) => {
+                    _this.markerPlayed(s);
+                });
+            }
             _this.$emit("timeupdate", e);
         });
 
@@ -341,12 +516,8 @@ export default {
 
         // volumechange：当音量更改时
         video.addEventListener("volumechange", function (e) {
-            // console.log("volumechange");
-            // console.log(e);
+            // console.log("volumechange", e);
             _this.private_volume = video.volume;
-            let bili = video.volume * 100;
-            _this.$refs["volume"].style.height = bili + "%";
-
             _this.$emit("volumechange", e);
         });
 
@@ -364,13 +535,15 @@ export default {
             _this.$emit("ratechange", e);
         });
         //#endregion
+        window.addEventListener("mousedown", this.windowMouseDown);
         window.addEventListener("mousemove", this.windowMouseMove);
-        window.addEventListener("mouseup", this.windowMouseMove);
+        window.addEventListener("mouseup", this.windowMouseUp);
     },
     /** 页面注销 */
     destroyed() {
+        window.removeEventListener("mousedown", this.windowMouseDown);
         window.removeEventListener("mousemove", this.windowMouseMove);
-        window.removeEventListener("mouseup", this.windowMouseMove);
+        window.removeEventListener("mouseup", this.windowMouseUp);
     },
 };
 </script>
@@ -392,8 +565,11 @@ export default {
     font-family: "Glyphicons Halflings";
     .video {
         position: relative;
+        width: 100%;
+        height: 100%;
     }
     .video-controls {
+        user-select: none;
         position: absolute;
         bottom: 0px;
         height: 30px;
@@ -442,10 +618,9 @@ export default {
                 height: 100%;
                 width: 0px;
                 top: 0px;
-                border-left: 1px solid #ff0000;
                 .time-tip-text {
                     position: absolute;
-                    bottom: 35px;
+                    top: -28px;
                     left: -50%;
                     height: 20px;
                     line-height: 20px;
@@ -467,6 +642,46 @@ export default {
                     margin-left: -6px;
                     bottom: -6px;
                     left: 50%;
+                }
+            }
+            .progress-marker {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                border-radius: 5px;
+                margin-left: -5px;
+                background: #ffffff;
+                top: calc(100% / 2 - 5px);
+                span {
+                    display: none;
+                    position: absolute;
+                    bottom: 15px;
+                    width: 60px;
+                    line-height: 20px;
+                    font-size: 12px;
+                    border: 1px solid #ccc;
+                    background: #fff;
+                    color: #000;
+                    border-radius: 5px;
+                    padding: 5px;
+                    text-align: left;
+                    left: -31px;
+                }
+
+                span::before {
+                    content: "";
+                    position: absolute;
+                    border-left: 6px solid #ffffff00;
+                    border-top: 6px solid #ffffff;
+                    border-right: 6px solid #ffffff00;
+                    margin-left: -6px;
+                    bottom: -6px;
+                    left: 50%;
+                }
+            }
+            .progress-marker:hover {
+                span {
+                    display: inline-block;
                 }
             }
         }
@@ -493,19 +708,21 @@ export default {
                     width: 2px;
                     background: #00000088;
                     .volume-now {
+                        position: absolute;
+                        bottom: 0px;
                         background: #ffffff88;
                         width: 2px;
                     }
-                }
-                .volume-line::before {
-                    position: absolute;
-                    content: "";
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 5px;
-                    top: -5px;
-                    left: -4px;
-                    background: #fff;
+                    .volume-now::before {
+                        position: absolute;
+                        content: "";
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 5px;
+                        top: -5px;
+                        left: -4px;
+                        background: #fff;
+                    }
                 }
             }
         }
