@@ -10,7 +10,7 @@ import FinishedCourses from "../views/FinishedCourses.vue"
 import CourseShop from "../views/CourseShop.vue"
 
 import Course from "../views/Course.vue"
-
+import Learning from "../views/Learning.vue"
 Vue.use(VueRouter)
 
 const routes = [
@@ -54,6 +54,11 @@ const routes = [
     path: "/course/:id",
     name: "Course",
     component: Course
+  },
+  {
+    path: "/learning/:id",
+    name: "Learning",
+    component: Learning
   },
   { path: '*', redirect: '/', hidden: true }
 ]

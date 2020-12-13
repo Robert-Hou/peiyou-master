@@ -137,7 +137,7 @@ export default {
         },
         /** 当前时间字符串 */
         timer() {
-            let sec = Math.floor(this.private_currentTime % 60)
+            let sec = Math.ceil(this.private_currentTime % 60)
                 .toString()
                 .padStart(2, "0");
             let min = Math.floor(this.private_currentTime / 60)
@@ -155,7 +155,7 @@ export default {
         },
         /** 选中时间字符串 */
         selectTimer() {
-            let sec = Math.floor(this.private_selectTime % 60)
+            let sec = Math.ceil(this.private_selectTime % 60)
                 .toString()
                 .padStart(2, "0");
             let min = Math.floor(this.private_selectTime / 60)
@@ -213,7 +213,7 @@ export default {
         },
         /** 转换时间方法 */
         changeTime(second) {
-            let sec = Math.floor(second % 60)
+            let sec = Math.ceil(second % 60)
                 .toString()
                 .padStart(2, "0");
             let min = Math.floor(second / 60)
@@ -488,7 +488,7 @@ export default {
             _this.progressNow.style.width = `${
                 (video.currentTime / video.duration) * 100
             }%`;
-            let sec = Math.floor(video.currentTime); //当前秒
+            let sec = Math.ceil(video.currentTime); //当前秒
             if (sec != lastSecond) {
                 lastSecond = sec; //设定当前秒
                 //如果当前秒不等于上一秒
@@ -710,7 +710,7 @@ export default {
                     .volume-now {
                         position: absolute;
                         bottom: 0px;
-                        background: #ffffff88;
+                        background: #ffffff;
                         width: 2px;
                     }
                     .volume-now::before {

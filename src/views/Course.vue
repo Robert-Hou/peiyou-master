@@ -99,7 +99,10 @@
                         <router-link
                             class="study-btn"
                             :class="{ disabled: !lesson.canStudy }"
-                            to=""
+                            :to="{
+                                name: 'Learning',
+                                params: { id: lesson.id },
+                            }"
                             v-text="lesson.isFinished ? '再次学习' : '开始学习'"
                         ></router-link>
                     </div>

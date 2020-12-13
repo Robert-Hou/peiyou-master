@@ -1,17 +1,17 @@
 <template>
     <div id="app">
-        <!-- <router-view /> -->
-        <video-box
+        <router-view />
+        <!-- <video-box
             ref="video-box"
             src="http://video.ailianmath.com/dbeb814df13341fd81d13ef6a005571f/34bcce4d1372473aaf6c8a1c0ceeb247-6d8e62f8817b6c2e512b40475b54f1a8-ld.mp4"
             :markers="markers"
             @markerPlayed="markerPlay"
-        ></video-box>
+        ></video-box> -->
     </div>
 </template>
 
 <script>
-import VideoBox from "./components/VideoBox";
+// import VideoBox from "./components/VideoBox";
 export default {
     name: "App",
     created() {
@@ -40,7 +40,7 @@ export default {
         };
     },
     components: {
-        VideoBox,
+        // VideoBox,
     },
     methods: {
         showCoinTask() {},
